@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>صلوات‌شمار</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <script>
+        // تنظیمات Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCD05uwaOafgthF4psSqmS51Cy3RBsQIgE",
+            authDomain: "salavat-counter-c8a09.firebaseapp.com",
+            projectId: "salavat-counter-c8a09",
+            storageBucket: "salavat-counter-c8a09.appspot.com",
+            messagingSenderId: "320655068353",
+            appId: "1:320655068353:web:ec66f7d9d988fd752a9840"
+        };
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore(app);
+
+        // ارسال صلوات
+        function sendSalavat() {
+            const name = document.getElementById("name").value.trim() || "بی‌نام";
+            const salavatRef = db.collection("salavats");
+
+            // اضافه کردن صلوات به پایگاه داده
+            salavatRef.doc(name).get().then(doc => {
+                if (doc.exists) {
+                    salavatRef.doc(name).update({
+                        count: doc.data().count + 1
+                    });
+                } else {
+                    salavatRef.doc(name).set({
+                        count: 1
+                    });
+                }
+            });
+
+            alert("صلوات شما ثبت شد. متشکریم!");
+            document.getElementById("name").value = ""; // خالی کردن فیلد نام
+        }
+
+        // نمایش آمار
+        function showStats() {
+            const pass = prompt("رمز مدیریت را وارد کنید:");
+            if (pass !== "admin123") return alert("رمز اشتباه است.");
+
+            const salavatRef = db.collection("salavats");
+            salavatRef.get().then(querySnapshot => {
+                let msg = "آمار صلوات‌ها:\n";
+                querySnapshot.forEach(doc => {
+                    msg += ${doc.id}: ${doc.data().count} صلوات\n;
+                });
+                alert(msg);
+            });
+        }
+    </script>
+</head>
+<body style="text-align: center; font-family: Arial, sans-serif;">
+    <h1>صلوات‌شمار</h1>
+    <p>نام خود را وارد کنید و یک صلوات بفرستید:</p>
+    <input type="text" id="name" placeholder="نام شما" />
+    <button onclick="sendSalavat()">ارسال صلوات</button>
+    <hr />
+    <button onclick="showStats()">مشاهده آمار (مدیر)</button>
+</body>
+</html>
